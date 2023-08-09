@@ -63,7 +63,7 @@ local function encode_value(value)
         for _, item in ipairs(value) do
             table.insert(items, tostring(item))
         end
-        return "[" .. table.concat(items, ", ") .. "]"
+        return "[" .. table.concat(items,", ") .. "]"
     else
         return tostring(value)
     end
@@ -72,16 +72,22 @@ end
 local function encode_section(section_data, parent_path, indent)
     local lines = {}
 
+    local found_value = false
     for key, value in pairs(section_data) do
         if type(value) ~= "table" then
-            lines[#lines + 1] = string.format("%s%s = %s", string.rep("  ", indent), key, encode_value(value))
+            found_value = true
+            lines[#lines + 1] = ("%s%s = %s"):format(("  "):rep(indent),key,encode_value(value))
         end
+    end
+
+    if found_value then
+        lines[#lines + 1] = ""
     end
 
     for key, value in pairs(section_data) do
         if type(value) == "table" then
             local full_key = parent_path and (parent_path .. "." .. key) or key
-            lines[#lines + 1] = string.format("\n%s[%s]", string.rep("  ", indent), full_key)
+            lines[#lines + 1] = ("%s[%s]"):format(("  "):rep(indent), full_key)
             lines[#lines + 1] = encode_section(value, full_key, indent + 1)
         end
     end
@@ -89,23 +95,30 @@ local function encode_section(section_data, parent_path, indent)
     return table.concat(lines, "\n")
 end
 
+
 function ini.encode(data)
     local ini_lines = {}
 
+    local found_values_root = false
+
     for section_name, section_data in pairs(data) do
         if type(section_data) ~= "table" then
-            ini_lines[#ini_lines + 1] = string.format("%s = %s", section_name, encode_value(section_data))
+            found_values_root = true
+
+            ini_lines[#ini_lines + 1] = ("%s = %s"):format(section_name,encode_value(section_data))
         end
     end
 
-    ini_lines[#ini_lines + 1] = ""
+    if found_values_root then
+        ini_lines[#ini_lines + 1] = ""
+    end
 
     for section_name, section_data in pairs(data) do
         if type(section_data) == "table" then
-            local full_section = string.format("[%s]", section_name)
+            local full_section = ("[%s]"):format(section_name)
             ini_lines[#ini_lines + 1] = full_section
             ini_lines[#ini_lines + 1] = encode_section(section_data, section_name, 1)
-            ini_lines[#ini_lines + 1] = ""
+
         end
     end
 
