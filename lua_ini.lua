@@ -1,7 +1,7 @@
 local ini = {}
 
 local function trim(s)
-    return s:match'^()%s*$' and '' or s:match'^%s*(.*%S)'
+    return s:match("^()%s*$") and "" or s:match("^%s*(.*%S)")
 end
 
 local function parse_value(value)
