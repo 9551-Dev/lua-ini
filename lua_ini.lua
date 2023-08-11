@@ -95,7 +95,6 @@ local function encode_section(section_data, parent_path, indent)
     return table.concat(lines, "\n")
 end
 
-
 function ini.encode(data)
     local ini_lines = {}
 
